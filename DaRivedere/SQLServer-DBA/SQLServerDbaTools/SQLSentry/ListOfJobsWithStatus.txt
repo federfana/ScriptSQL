@@ -1,0 +1,44 @@
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+GO
+
+USE SQLSentry;
+
+SELECT 
+  z.ServerName
+, z.JobName
+, z.LastRunStatus
+, z.LastRunDateTime
+, z.NextRunDateTime
+, z.RunDuration
+, z.RunDurationAvg
+
+FROM
+(
+       SELECT 
+         vhj.Computer AS ServerName
+       , voj.ObjectName AS JobName
+       , CASE 
+              WHEN vhj.RunStatus = 0 
+              THEN 'Failed'
+              WHEN vhj.RunStatus = 1 
+              THEN 'Succeeded'
+           ELSE 'Unknown'
+         END AS LastRunStatus
+       , CONVERT(DATETIME,msdb.dbo.agent_datetime(vhj.Run_Date, vhj.Run_Time),114) AS LastRunDateTime
+       , CONVERT(DATETIME,voj.NextExecutionStartDateTime,114) AS NextRunDateTime
+       , CONVERT(CHAR(8),DATEADD(second,(vhj.Duration/10000000),0),108) AS RunDuration
+       , CONVERT(CHAR(8),DATEADD(second,(voj.AverageDuration/10000000),0),108) AS RunDurationAvg
+
+       FROM SQLSentry.dbo.vwMetaHistoryJob vhj 
+       JOIN SQLSentry.dbo.vwMetaObjectJob voj ON vhj.ObjectID = voj.ObjectID
+       --WHERE vhj.RunStatus = 1 --Failed Jobs
+       --AND voj.ObjectName NOT IN ('DBA DatabaseBackup - USER_DATABASES - LOG', 'DBA DatabaseBackup - USER_DATABASES - DIFF', 'DBA DatabaseBackup - USER_DATABASES - FULL')
+       WHERE voj.ObjectName LIKE '%Backup%'
+) z
+
+WHERE z.LastRunDateTime >= GETDATE()-5
+--AND ServerName = 'SISQLPRD1'
+
+ORDER BY 
+  z.LastRunDateTime
+DESC

@@ -1,0 +1,4 @@
+SELECT SERVERPROPERTY('ProductVersion') AS ProductVersion,
+ SERVERPROPERTY('ProductLevel') AS ProductLevel
+
+SELECT @@VERSION

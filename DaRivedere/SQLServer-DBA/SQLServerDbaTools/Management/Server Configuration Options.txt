@@ -1,0 +1,2 @@
+SELECT name, value_in_use FROM sys.configurations
+ WHERE configuration_id IN (16391, 102, 400, 1562, 16386, 16385, 16390, 16393)

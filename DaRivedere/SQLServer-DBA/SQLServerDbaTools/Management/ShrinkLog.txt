@@ -1,0 +1,20 @@
+select [name], DATABASEPROPERTYEX([name],'recovery')
+from sysdatabases
+where name not in ('master','model','tempdb','msdb')
+
+
+
+
+use XpoReports_UAT
+declare  @DBLog nvarchar(50);
+set @DBLog = (SELECT name
+FROM sys.master_files
+WHERE database_id = db_id('XpoReports_UAT')
+  AND type = 1)
+print @DBLog
+
+DBCC SHRINKFILE (@DBLog, 2000);
+GO
+
+
+

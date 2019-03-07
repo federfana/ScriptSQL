@@ -1,0 +1,2 @@
+SELECT name FROM master.sys.databases 
+ WHERE name LIKE '%Test%' OR name LIKE '%Dev%'

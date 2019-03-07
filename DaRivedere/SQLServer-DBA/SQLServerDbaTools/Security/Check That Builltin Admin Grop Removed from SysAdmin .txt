@@ -1,0 +1,5 @@
+SELECT r.name  as SrvRole, u.name  as LoginName  
+FROM sys.server_role_members m JOIN
+  sys.server_principals r ON m.role_principal_id = r.principal_id  JOIN
+  sys.server_principals u ON m.member_principal_id = u.principal_id 
+WHERE u.name = 'BUILTIN\Administrators'

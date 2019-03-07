@@ -1,0 +1,5 @@
+SELECT l.name, CASE WHEN l.name = 'sa' THEN 'NO' ELSE 'YES' END as Renamed,
+  s.is_policy_checked, s.is_expiration_checked, l.is_disabled
+FROM sys.server_principals AS l
+ LEFT OUTER JOIN sys.sql_logins AS s ON s.principal_id = l.principal_id
+WHERE l.sid = 0x01

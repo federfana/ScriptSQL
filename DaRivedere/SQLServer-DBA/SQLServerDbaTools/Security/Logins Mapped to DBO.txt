@@ -1,0 +1,3 @@
+EXEC master.sys.sp_MSforeachdb '
+PRINT ''?''
+EXEC [?].dbo.sp_helpuser ''dbo'''

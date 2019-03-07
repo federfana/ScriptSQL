@@ -1,0 +1,120 @@
+IF EXISTS ( SELECT * FROM tempdb.dbo.sysobjects WHERE id = OBJECT_ID(N'[tempdb].[dbo].[dbUsersList]') )
+	DROP TABLE [tempdb].[dbo].[dbUsersList]; 
+GO
+
+CREATE TABLE [tempdb].[dbo].[dbUsersList] 
+(
+	[Server] [varchar](100),
+	[DatabaseName] [varchar](70),
+	[UserName] [nvarchar](90),
+	[GroupName] [varchar](100),
+	[AccountType] [varchar](22),
+	[LoginName] [varchar](80),
+	[DefaultDatabase] [varchar](100),
+	[IsSysAdmin] [varchar](100)
+)
+ ON [PRIMARY]
+
+DECLARE @DatabaseName VARCHAR(50)   
+DECLARE @Command NVARCHAR(max)
+
+DECLARE db_cursor CURSOR FOR  
+	SELECT [Name]
+	FROM MASTER.dbo.sysdatabases 
+	--WHERE name NOT IN ('master','model','msdb','tempdb')  -- EXCLUDE SYSDBs
+OPEN db_cursor   
+
+FETCH NEXT FROM db_cursor INTO @DatabaseName
+
+WHILE @@FETCH_STATUS = 0   
+BEGIN   
+       set @Command =  'INSERT INTO [tempdb].[dbo].[dbUsersList] ' +
+	   ' SELECT 
+		CONVERT(varchar(100),
+		SERVERPROPERTY(''Servername'')) AS Server,
+		''' + @DatabaseName + ''' as DB_Name,
+		sysUsers.name u_name,
+		CASE
+			WHEN (sysUserGroup.uid is null) then ''public''
+		ELSE 
+			sysUserGroup.name
+		END as Group_Name,
+		CASE
+			WHEN sysUsers.isntuser=1 then ''Windows Domain Account''
+			WHEN sysUsers.isntgroup = 1 then ''Windows Group''
+			WHEN sysUsers.issqluser = 1 then ''SQL Account''
+			WHEN sysUsers.issqlrole = 1 then ''SQL Role''
+		END as Account_Type,
+		sysLogins.loginname,
+		sysLogins.dbname as Def_DB,
+		CASE
+			WHEN sysLogins.sysadmin=1 then ''YES''
+		ELSE
+			''NO'' 
+		END as IsSysAdmin
+	FROM
+		[' + @DatabaseName + ']..sysusers sysUsers LEFT OUTER JOIN
+		([' + @DatabaseName + ']..sysMembers sysMembers INNER JOIN 
+		 [' + @DatabaseName + ']..sysusers sysUserGroup 
+			ON sysMembers.groupuid = sysUserGroup.uid) 
+		 ON 
+			sysUsers.uid = sysMembers.memberuid
+		LEFT OUTER JOIN master.dbo.syslogins sysLogins on sysUsers.sid = sysLogins.sid
+	WHERE
+		(sysUsers.islogin = 1 and sysUsers.isaliased = 0 and sysUsers.hasdbaccess = 1) and
+		(sysUserGroup.issqlrole = 1 or sysUserGroup.uid is null)'
+
+		execute( @Command)
+	   --print  @Command
+       FETCH NEXT FROM db_cursor INTO  @DatabaseName
+END   
+
+
+Declare @Body varchar(max),
+        @TableHead varchar(max),
+        @TableTail varchar(max)
+Set @TableHead = '<html><head>' +
+                  '<style>' +
+                  'td {border: solid black 1px;padding-left:5px;padding-right:5px;padding-top:1px;padding-bottom:1px;font-size:11pt;} ' +
+                  '</style>' +
+                  '</head>' +
+                  '<body>' + 
+				  '<h3>List of Users per DB with Effective Roles</h3>' +
+				  '<table cellpadding=0 cellspacing=0 border=0>' +
+                  '<tr bgcolor=#AABBCC>' + 
+				  '<td align=center><b>SERVER</b></td>' +
+                  '<td align=center><b>DATABASE NAME</b></td>' +
+                  '<td align=center><b>USER NAME</b></td>' +
+                  '<td align=center><b>GROUP NAME</b></td>' +
+                  '<td align=center><b>ACCOUNT TYPE</b></td>' +
+				  '<td align=center><b>LOGIN NAME</b></td>' +
+                  '<td align=center><b>DEFAULT DATABASE</b></td>' +
+                  '<td align=center><b>IS SYS ADMIN?</b></td></tr>';
+
+Set @TableTail = '</table></body></html>';
+
+Select @Body =( SELECT 
+	coalesce([Server], '-') as [TD],
+	coalesce([DatabaseName], '-') as [TD],
+	coalesce([UserName], '-') as [TD],
+	coalesce([GroupName], '-') as [TD],
+	coalesce([AccountType], '-') as [TD],
+	coalesce([LoginName], '-') as [TD],
+	coalesce([DefaultDatabase],'-') as [TD],
+	[IsSysAdmin] as [TD]
+FROM 
+	[tempdb].[dbo].[dbUsersList]
+order by 
+	[LoginName]
+	For XML raw('tr'), Elements)
+
+
+set @Body = @TableHead + @Body + @TableTail
+Select @Body
+
+CLOSE db_cursor   
+DEALLOCATE db_cursor
+
+DROP TABLE [tempdb].[dbo].[dbUsersList]; 
+
+

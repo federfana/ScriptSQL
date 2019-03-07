@@ -1,0 +1,8 @@
+SELECT sjh.server,sj.name, CONVERT(VARCHAR(30),sjh.message) as message , sjh.run_date, sjh.run_time
+FROM msdb..sysjobhistory sjh
+JOIN msdb..sysjobs sj on sjh.job_id = sj.job_id
+JOIN (SELECT job_id, max(instance_id) maxinstanceid
+FROM msdb..sysjobhistory
+WHERE run_status NOT IN (1,4)
+GROUP BY job_id) a ON sjh.job_id = a.job_id AND sjh.instance_id = a.maxinstanceid
+WHERE DATEDIFF(dd,CONVERT(VARCHAR(8),sjh.run_date), GETDATE()) <= 1

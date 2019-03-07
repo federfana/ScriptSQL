@@ -1,0 +1,30 @@
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+SELECT
+ 
+  vhj.Computer
+, voj.ObjectName
+, CASE
+       WHEN vhj.RunStatus = 0
+       THEN 'Failed'
+       WHEN vhj.RunStatus = 1
+       THEN 'Succeeded'
+  END AS RunStatus
+, msdb.dbo.agent_datetime(vhj.Run_Date, vhj.Run_Time) as 'RunDateTime'
+, voj.NextExecutionStartDateTime
+, CONVERT(CHAR(8),DATEADD(second,(vhj.Duration/10000000),0),108) AS Duration
+, CONVERT(CHAR(8),DATEADD(second,(voj.AverageDuration/10000000),0),108) AS AverageDuration
+ 
+FROM SQLSentry.dbo.vwMetaHistoryJob vhj
+JOIN SQLSentry.dbo.vwMetaObjectJob voj ON vhj.ObjectID = voj.ObjectID
+ 
+WHERE vhj.RunStatus = 0 --Failed Jobs
+AND (
+          voj.ObjectName LIKE '%DBA%'
+       OR voj.ObjectName LIKE '%Backup%'
+       OR voj.ObjectName LIKE '%Maint%'
+       )
+ 
+ORDER BY
+  msdb.dbo.agent_datetime(vhj.Run_Date, vhj.Run_Time)
+DESC;
+ 

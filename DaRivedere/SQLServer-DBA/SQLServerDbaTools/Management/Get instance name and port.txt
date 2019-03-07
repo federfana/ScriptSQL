@@ -1,0 +1,29 @@
+set nocount on
+
+Declare @key Varchar(100), @PortNumber varchar(20)
+
+if charindex('\',CONVERT(char(20), SERVERPROPERTY('servername')),0) <>0
+
+begin
+
+set @key = 'SOFTWARE\MICROSOFT\Microsoft SQL Server\'+@@servicename+'\MSSQLServer\Supersocketnetlib\TCP'
+
+end
+
+else
+
+begin
+
+set @key = 'SOFTWARE\MICROSOFT\MSSQLServer\MSSQLServer\Supersocketnetlib\TCP'
+
+end
+
+EXEC master..xp_regread @rootkey='HKEY_LOCAL_MACHINE', @key=@key,@value_name='Tcpport',@value=@PortNumber OUTPUT
+
+SELECT CONVERT(char(20), SERVERPROPERTY('servername')) ServerName,
+
+CONVERT(char(20), SERVERPROPERTY('InstanceName')) instancename,
+
+CONVERT(char(20), SERVERPROPERTY('MachineName'))
+
+as HOSTNAME, convert(varchar(10),@PortNumber) PortNumber

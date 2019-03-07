@@ -1,0 +1,10 @@
+Performance Optimization
+https://gallery.technet.microsoft.com/scriptcenter/site/search?f%5B0%5D.Type=RootCategory&f%5B0%5D.Value=databases&f%5B0%5D.Text=Databases&f%5B1%5D.Type=SubCategory&f%5B1%5D.Value=sqlserver&f%5B1%5D.Text=SQL%20Server
+http://www.sqlservercentral.com/blogs/stratesql/2010/12/9/can-you-dig-it_3F00_-_1320_-parallelism-in-the-plan-cache/
+
+Audit
+https://www.mssqltips.com/sqlservertip/2801/sql-server-database-security-audit-part-1-what-to-expect/
+https://www.mssqltips.com/sqlservertip/2887/sql-server-security-audit-part-2-scripts-to-help-you-or-where-can-you-find-more-information/
+
+DBAdmin
+http://dbace.us/repriser/sqlserverpub.html

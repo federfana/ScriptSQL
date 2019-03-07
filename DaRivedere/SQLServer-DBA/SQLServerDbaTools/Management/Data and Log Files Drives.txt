@@ -1,0 +1,3 @@
+SELECT name, type_desc, physical_name, 
+ LEFT(physical_name, CHARINDEX( '\', physical_name,0)) AS DriveLetter
+FROM sys.database_files

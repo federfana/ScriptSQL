@@ -1,0 +1,2 @@
+SELECT name FROM master.sys.databases 
+ WHERE name IN ('pubs', 'Northwind') OR name LIKE 'Adventure Works%'

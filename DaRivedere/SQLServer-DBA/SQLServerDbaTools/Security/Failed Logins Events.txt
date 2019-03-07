@@ -1,0 +1,1 @@
+EXEC master.dbo.xp_readerrorlog 0, 1, 'login failed', null, NULL, NULL, N'desc'

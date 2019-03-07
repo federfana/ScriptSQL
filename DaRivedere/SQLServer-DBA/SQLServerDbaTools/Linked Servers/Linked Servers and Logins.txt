@@ -1,0 +1,4 @@
+-- list of remote/linked servers
+SELECT * FROM sys.servers
+-- linked server logins
+EXEC master.sys.sp_helplinkedsrvlogin 

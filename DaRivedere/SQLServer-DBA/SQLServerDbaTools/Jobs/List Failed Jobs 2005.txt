@@ -1,0 +1,6 @@
+SELECT DISTINCT GETDATE() as ts, name, start_execution_date, stop_execution_date, message, server
+FROM   msdb.dbo.sysjobs  
+INNER JOIN msdb.dbo.sysjobactivity  ON msdb.dbo.sysjobs.job_id = msdb.dbo.sysjobactivity.job_id
+INNER JOIN msdb.dbo.sysjobhistory  ON msdb.dbo.sysjobs.job_id = msdb.dbo.sysjobhistory.job_id
+WHERE (stop_execution_date > dateadd(hh, -1, getdate()) OR start_execution_date > dateadd(hh, -1, getdate()))
+AND message LIKE 'The job failed%'

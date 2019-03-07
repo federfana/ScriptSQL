@@ -1,0 +1,14 @@
+Create operator:
+
+EXEC msdb.dbo.sp_add_operator @name=N'NotifyDBA_Group', 
+  @enabled=1, 
+  @email_address=N'NotifyDBAs@company.com'
+Create alert for severity 14 events (these are security related errors):
+
+EXEC msdb.dbo.sp_add_alert @name = N'Sev. 14 Errors - Permissions', 
+  @severity = 14, 
+  @include_event_description_in = 1
+Create notification:
+
+EXEC msdb.dbo.sp_add_notification @alert_name = N'Sev. 14 Errors - Permissions', 
+@operator_name = N'NotifyDBA_Group', @notification_method = 1

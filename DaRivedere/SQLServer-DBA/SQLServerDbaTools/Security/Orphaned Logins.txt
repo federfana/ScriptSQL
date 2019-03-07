@@ -1,0 +1,1 @@
+EXEC master.sys.sp_validatelogins

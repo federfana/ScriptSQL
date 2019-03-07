@@ -1,0 +1,7 @@
+Install SQL Server 2008 R2 Management Objects using Web PI (I'm not sure about versions prior to 2008 R2... if you have more info, please let us know in the comments)
+Install 'Windows PowerShell Extensions for SQL Server' from the Microsoft® SQL Server® 2008 R2 Feature Pack page (it's about halfway down the page).
+Run these two commands before calling invoke-sqlcmd in your script:
+Add-PSSnapin SqlServerCmdletSnapin100
+Add-PSSnapin SqlServerProviderSnapin100
+
+Sql Server 2012 has switched to Modules. Please try Import-Module SqlPs

@@ -1,0 +1,8 @@
+use master
+Go
+Alter Database  [DBaseName]   set Single_User with rollback Immediate;
+Go
+Alter Database  [DBaseName]   set Offline;
+
+Alter Database  [DBaseName]   set Online;
+Alter Database  [DBaseName]   set Multi_User;

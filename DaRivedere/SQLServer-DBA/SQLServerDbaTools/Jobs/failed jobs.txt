@@ -1,0 +1,61 @@
+declare @RPT_BEGIN_DATE datetime 
+declare @NUMBER_OF_DAYS int
+-- Set the number of days to go back to calculate the report begin date
+set @NUMBER_OF_DAYS = -7
+
+-- If the current date is Monday, then have the report start on Friday.
+--if datepart(dw,getdate()) = 2
+--set @NUMBER_OF_DAYS = -3
+-- Get the report begin date and time
+set @RPT_BEGIN_DATE = dateadd(day,@NUMBER_OF_DAYS,getdate()) 
+select * 
+From msdb.dbo.sysjobs j 
+INNER JOIN msdb.dbo.sysjobhistory h 
+ ON j.job_id = h.job_id 
+where j.enabled = 1
+and (getdate() >
+-- Calculate fail datetime
+-- Add Run Duration Seconds
+dateadd(ss,
+cast(substring(cast(run_duration + 1000000 as char(7)),6,2) as int),
+-- Add Run Duration Minutes 
+dateadd(mi,
+cast(substring(cast(run_duration + 1000000 as char(7)),4,2) as int),
+-- Add Run Duration Hours
+dateadd(hh,
+cast(substring(cast(run_duration + 1000000 as char(7)),2,2) as int),
+-- Add Start Time Seconds
+dateadd(ss,
+cast(substring(cast(run_time + 1000000 as char(7)),6,2) as int),
+-- Add Start Time Minutes 
+dateadd(mi,
+cast(substring(cast(run_time + 1000000 as char(7)),4,2) as int),
+-- Add Start Time Hours
+dateadd(hh,
+cast(substring(cast(run_time + 1000000 as char(7)),2,2) as int),
+convert(datetime,cast (run_date as char(8))))
+)))))) 
+and (@RPT_BEGIN_DATE < -- Calculate fail datetime
+-- Add Run Duration Seconds
+dateadd(ss,
+cast(substring(cast(run_duration + 1000000 as char(7)),6,2) as int),
+-- Add Run Duration Minutes 
+dateadd(mi,
+cast(substring(cast(run_duration + 1000000 as char(7)),4,2) as int),
+-- Add Run Duration Hours
+dateadd(hh,
+cast(substring(cast(run_duration + 1000000 as char(7)),2,2) as int),
+-- Add Start Time Seconds
+dateadd(ss,
+cast(substring(cast(run_time + 1000000 as char(7)),6,2) as int),
+-- Add Start Time Minutes 
+dateadd(mi,
+cast(substring(cast(run_time + 1000000 as char(7)),4,2) as int),
+-- Add Start Time Hours
+dateadd(hh,
+cast(substring(cast(run_time + 1000000 as char(7)),2,2) as int),
+convert(datetime,cast (run_date as char(8))))
+)))))) 
+and description like '%ola.hallengren%'
+and message like '%failed%'
+order by run_date desc
